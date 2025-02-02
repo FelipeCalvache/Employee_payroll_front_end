@@ -5,7 +5,7 @@ interface ChildProps {
   handleSetUpDateData: () => void;
 }
 
-export const ExcelUploadForm : FC<ChildProps> = ({ handleSetUpDateData }) => {
+export const ExcelUploadForm: FC<ChildProps> = ({ handleSetUpDateData }) => {
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -29,7 +29,7 @@ export const ExcelUploadForm : FC<ChildProps> = ({ handleSetUpDateData }) => {
       setLoading(true);
       const formData = new FormData();
       formData.append("file", file);
-
+      console.log("entra al try");
       const response = await fetch(
         "http://localhost:8080/api/attendance/upload",
         {
@@ -51,7 +51,7 @@ export const ExcelUploadForm : FC<ChildProps> = ({ handleSetUpDateData }) => {
   };
 
   return (
-    <Box maxW="md" mx="auto" p={4}>
+    <Box flexDir="column" maxW="md" mx="auto" p={4}>
       <form onSubmit={handleSubmit}>
         <Input
           type="file"
@@ -59,12 +59,10 @@ export const ExcelUploadForm : FC<ChildProps> = ({ handleSetUpDateData }) => {
           onChange={handleFileChange}
           disabled={loading}
           padding={1}
-          
         />
-
-        <Button mt={4} type="submit" color="red">
-          Subir
-        </Button>
+      <Button mt={4} type="submit" color="red">
+        Subir
+      </Button>
       </form>
     </Box>
   );

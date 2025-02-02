@@ -10,7 +10,9 @@ import {
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { LuFolder, LuSquareCheck, LuUser } from "react-icons/lu";
-import { ExcelUploadForm } from "./components/ui/ExcelUploadForm";
+import { ExcelUploadForm } from "./components/ExcelUploadForm";
+import { SearchWorkDays } from "./components/SearchWorkDays";
+import ExcelDownloader from "./components/ExcelDownloader";
 
 interface Employee {
   id: string;
@@ -37,7 +39,8 @@ const App: React.FC = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [workDays, setWorkDays] = useState<ProcessedWorkDay[]>([]);
-  const [upDateData, setUpDateData] = useState<boolean>(false)
+  const [upDateData, setUpDateData] = useState<boolean>(false);
+  const [filterWorkDays, setFilterWorkDays] = useState<ProcessedWorkDay[]>([]);
 
   const [loading, setLoading] = useState<boolean>(true); // Estado de carga
   const [error, setError] = useState<string | null>(null); // Estado de error
@@ -97,9 +100,14 @@ const App: React.FC = () => {
       });
   }, [upDateData]);
 
-  function handleSetUpDateData(){
+  function handleSetUpDateData() {
     console.log("Se actulaizo el estado de handleSetUpDateData");
-    setUpDateData(!upDateData)
+    setUpDateData(!upDateData);
+  }
+
+  function onSearchResults(filteredWorkDays) {
+    console.log(JSON.stringify(filteredWorkDays));
+    setFilterWorkDays(filteredWorkDays);
   }
 
   return (
@@ -116,6 +124,10 @@ const App: React.FC = () => {
         <Tabs.Trigger value="tasks">
           <LuSquareCheck />
           Horas por empleado
+        </Tabs.Trigger>
+        <Tabs.Trigger value="ExcelDownloader">
+          <LuSquareCheck />
+          Descargar excel
         </Tabs.Trigger>
       </Tabs.List>
       <Tabs.Content value="members">
@@ -180,6 +192,7 @@ const App: React.FC = () => {
         <ExcelUploadForm
           handleSetUpDateData={handleSetUpDateData}
         ></ExcelUploadForm>
+        <SearchWorkDays workDays={workDays} onSearchResults={onSearchResults} />
         <Table.Root size="sm" striped>
           <Table.Header>
             <Table.Row>
@@ -195,24 +208,44 @@ const App: React.FC = () => {
             </Table.Row>
           </Table.Header>
           <Table.Body>
-            {workDays?.map((item) => (
-              <Table.Row
-                // backgroundColor={item.end ? "none" : "red"}
-                key={item.id}
-              >
-                <Table.Cell>{item.id}</Table.Cell>
-                <Table.Cell>{item.start.date}</Table.Cell>
-                {item.end ? (
-                  <Table.Cell>{item.end?.date}</Table.Cell>
-                ) : (
-                  <Table.Cell>⚠️Revisar</Table.Cell>
-                )}
-                <Table.Cell>{item.employee.name}</Table.Cell>
-                <Table.Cell>{item.duration}</Table.Cell>
-              </Table.Row>
-            ))}
+            {filterWorkDays.length == 0
+              ? workDays?.map((item) => (
+                  <Table.Row
+                    // backgroundColor={item.end ? "none" : "red"}
+                    key={item.id}
+                  >
+                    <Table.Cell>{item.id}</Table.Cell>
+                    <Table.Cell>{`${item.start.date} : ${item.start.time} `}</Table.Cell>
+                    {item.end ? (
+                      <Table.Cell>{`${item.end?.date} : ${item.end?.time} `}</Table.Cell>
+                    ) : (
+                      <Table.Cell>⚠️Revisar</Table.Cell>
+                    )}
+                    <Table.Cell>{item.employee.name}</Table.Cell>
+                    <Table.Cell>{item.duration}</Table.Cell>
+                  </Table.Row>
+                ))
+              : filterWorkDays?.map((item) => (
+                  <Table.Row
+                    // backgroundColor={item.end ? "none" : "red"}
+                    key={item.id}
+                  >
+                    <Table.Cell>{item.id}</Table.Cell>
+                    <Table.Cell>{`${item.start.date} : ${item.start.time} `}</Table.Cell>
+                    {item.end ? (
+                      <Table.Cell>{`${item.end?.date} : ${item.end?.time} `}</Table.Cell>
+                    ) : (
+                      <Table.Cell>⚠️Revisar</Table.Cell>
+                    )}
+                    <Table.Cell>{item.employee.name}</Table.Cell>
+                    <Table.Cell>{item.duration}</Table.Cell>
+                  </Table.Row>
+                ))}
           </Table.Body>
         </Table.Root>
+      </Tabs.Content>
+      <Tabs.Content value="ExcelDownloader">
+        <ExcelDownloader/>
       </Tabs.Content>
     </Tabs.Root>
   );
